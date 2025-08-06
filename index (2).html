@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working TV Simulator</title>
+    <style>
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .tv {
+            width: 800px;
+            height: 650px;
+            background: #333;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 15px solid #444;
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 70%;
+            background: black;
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #222;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .video-container.active {
+            display: block;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .static-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.8),
+                rgba(0, 0, 0, 0.8) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .static-overlay.active {
+            opacity: 1;
+            animation: static 0.1s infinite;
+        }
+
+        @keyframes static {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 4px; }
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .channel-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .channel-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #555;
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+
+        .channel-btn:hover {
+            background: #666;
+        }
+
+        .channel-btn.active {
+            background: #6c5ce7;
+            transform: scale(1.1);
+        }
+
+        .power-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #e74c3c;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+
+        .power-btn:hover {
+            background: #ff6b5b;
+        }
+
+        .power-btn.off {
+            background: #2ecc71;
+        }
+
+        .tv-stand {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 20px;
+            background: #444;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .channel-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 5;
+        }
+
+        .custom-url {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .custom-url input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: #444;
+            color: white;
+        }
+
+        .custom-url button {
+            padding: 10px 15px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .custom-url button:hover {
+            background: #7d6df7;
+        }
+
+        .volume-control {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .volume-control input {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="tv">
+        <div class="screen">
+           
+            <div class="video-container active" data-channel="1">
+                <video id="video1" loop>
+                    <source src="videoplayback.mp4" type="video/mp4">
+                </video>
+                <div class="channel-info">Channel 1: Adventure</div>
+            </div>
+            
+            <div class="video-container" data-channel="2">
+                <video id="video2" loop>
+                    <source src="videoplayback (2).mp4" type="video/mp4">
+                </video>
+                <div class="channel-info">Channel 2: Nature</div>
+            </div>
+            
+            <div class="video-container" data-channel="3">
+                <video id="video3" loop>
+                    <source src="code.mp4" type="video/mp4">
+                </video>
+                <div class="channel-info">Channel 3: Escape</div>
+            </div>
+            
+            <div class="video-container" data-channel="4">
+                <video id="video4" loop>
+                    <source src="code1.mp4" type="video/mp4">
+                </video>
+                <div class="channel-info">Channel 4: Fun</div>
+            </div>
+
+            
+            <div class="video-container" data-channel="5">
+                <div class="static-overlay active"></div>
+                <audio id="static-audio" loop>
+                    <source src="https://youtu.be/ER9SspLe4Hg?si=WPmhFXA2jsjJnAgh" type="audio/mpeg">
+                </audio>
+                <div class="channel-info">Channel 5: Static</div>
+            </div>
+
+           
+            <div class="video-container" data-channel="6">
+                <video id="video6" loop></video>
+                <div class="channel-info">Channel 6: Custom</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="channel-buttons">
+                <button class="channel-btn active" data-channel="1">1</button>
+                <button class="channel-btn" data-channel="2">2</button>
+                <button class="channel-btn" data-channel="3">3</button>
+                <button class="channel-btn" data-channel="4">4</button>
+                <button class="channel-btn" data-channel="5">5</button>
+                <button class="channel-btn" data-channel="6">6</button>
+            </div>
+            
+            <button class="power-btn off" id="power-btn">ON</button>
+        </div>
+
+        <div class="custom-url">
+            <input type="text" id="video-url" placeholder="Enter video URL (mp4 recommended)">
+            <button id="load-btn">Load on Channel 6</button>
+        </div>
+
+        <div class="volume-control">
+            <span>Volume:</span>
+            <input type="range" id="volume-control" min="0" max="10" step="0.01" value="0.5">
+        </div>
+    </div>
+    <div class="tv-stand"></div>
+
+    <script>
+        const videoContainers = document.querySelectorAll('.video-container');
+        const channelBtns = document.querySelectorAll('.channel-btn');
+        const powerBtn = document.getElementById('power-btn');
+        const videos = document.querySelectorAll('video');
+        const screen = document.querySelector('.screen');
+        const videoUrlInput = document.getElementById('video-url');
+        const loadBtn = document.getElementById('load-btn');
+        const volumeControl = document.getElementById('volume-control');
+        const staticAudio = document.getElementById('static-audio');
+        const staticOverlay = document.querySelector('.static-overlay');
+
+        let currentChannel = 1;
+        let isOn = true;
+
+        
+        videos[0].volume = 0.5;
+        videos[0].play();
+
+        volumeControl.addEventListener('input', () => {
+            const volume = volumeControl.value;
+           
+            videos.forEach(video => video.volume = volume);
+            staticAudio.volume = volume;
+        });
+
+        
+        channelBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isOn) return;
+                
+                const channel = btn.dataset.channel;
+                changeChannel(channel);
+            });
+        });
+
+        function changeChannel(channel) {
+            channelBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector(`.channel-btn[data-channel="${channel}"]`).classList.add('active');
+            
+        
+            videoContainers.forEach(container => {
+                container.classList.remove('active');
+                const video = container.querySelector('video');
+                if (video) video.pause();
+            });
+            staticAudio.pause();
+            staticOverlay.classList.remove('active');
+            
+          
+            const activeContainer = document.querySelector(`.video-container[data-channel="${channel}"]`);
+            activeContainer.classList.add('active');
+            
+            if (channel === '5') {
+                
+                staticOverlay.classList.add('active');
+                staticAudio.currentTime = 0;
+                staticAudio.play();
+            } else {
+            
+                const activeVideo = activeContainer.querySelector('video');
+                if (activeVideo) {
+                    activeVideo.currentTime = 0;
+                    activeVideo.volume = volumeControl.value;
+                    activeVideo.play();
+                }
+            }
+            
+            currentChannel = channel;
+        }
+
+       
+        powerBtn.addEventListener('click', () => {
+            isOn = !isOn;
+            
+            if (isOn) {
+                powerBtn.textContent = 'ON';
+                powerBtn.classList.add('off');
+                screen.style.opacity = '1';
+                changeChannel(currentChannel); 
+            } else {
+                powerBtn.textContent = 'OFF';
+                powerBtn.classList.remove('off');
+                screen.style.opacity = '0';
+                videoContainers.forEach(container => {
+                    container.classList.remove('active');
+                    const video = container.querySelector('video');
+                    if (video) video.pause();
+                });
+                staticAudio.pause();
+                staticOverlay.classList.remove('active');
+            }
+        });
+
+     
+        loadBtn.addEventListener('click', () => {
+            const url = videoUrlInput.value.trim();
+            if (!url) return;
+            
+            const customVideo = document.querySelector('#video6');
+            const customSource = customVideo.querySelector('source') || document.createElement('source');
+            
+            customSource.src = url;
+            customSource.type = 'video/mp4';
+            
+            if (!customVideo.querySelector('source')) {
+                customVideo.appendChild(customSource);
+            }
+            
+          
+            customVideo.load();
+            
+         
+            changeChannel('6');
+            
+ 
+            document.querySelector('.video-container[data-channel="6"] .channel-info').textContent = 'Channel 6: Custom Video';
+        });
+
+    
+        setInterval(() => {
+            if (isOn && currentChannel !== 5 && currentChannel !== 6) { 
+                const nextChannel = currentChannel % 4 + 1;
+                changeChannel(nextChannel);
+            }
+        }, 1.08e+7);
+    </script>
+</body>
+</html>
